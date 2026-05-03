@@ -379,7 +379,7 @@
         </div>
         <div class="form-group">
           <label>WhatsApp Number <span style="color:var(--accent);">*</span></label>
-          <input type="tel" name="WhatsApp" placeholder="+91 XXXXX XXXXX" required />
+          <input type="tel" name="Whatsapp" placeholder="+91 XXXXX XXXXX" required />
         </div>
         <div class="form-group">
           <label>Message</label>
@@ -480,7 +480,7 @@
         const originalText = btn.textContent;
         btn.textContent = 'Sending...';
         
-        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+        fetch(scriptURL, { method: 'POST', body: new FormData(form), mode: 'no-cors'})
           .then(response => {
             btn.textContent = 'Message Sent! ✓';
             btn.style.background = '#22c55e';
