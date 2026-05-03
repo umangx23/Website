@@ -22,6 +22,17 @@
 </head>
 
 <body>
+  <!-- PRELOADER -->
+  <div class="preloader">
+    <div class="preloader-content">
+      <div class="preloader-logo">UC<span>.</span></div>
+      <div class="progress-bar-container">
+        <div class="progress-bar"></div>
+      </div>
+      <div class="progress-text">0%</div>
+    </div>
+  </div>
+
   <div class="cursor-dot" data-cursor-dot></div>
   <div class="cursor-outline" data-cursor-outline></div>
   <div class="ambient-glow" data-ambient-glow></div>
@@ -40,9 +51,12 @@
 
   <!-- HERO -->
   <section id="hero">
+    <video autoplay loop muted playsinline class="hero-bg-video">
+      <source src="Assets/ECell- Outro.mp4" type="video/mp4" />
+    </video>
     <div class="hero-content">
       <div class="hero-image-placeholder reveal">
-        <img src="Assets/Hero.jpg" alt="Hero Image" />
+        <img src="Assets/Mountains.jpg" alt="Hero Image" />
       </div>
       <h1 class="hero-name reveal">Umang <em>Chhabra.</em></h1>
     </div>
@@ -399,16 +413,55 @@
   </footer>
 
   <script>
-    // Intersection Observer for scroll reveals
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(el => {
-        if (el.isIntersecting) {
-          el.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.15 });
+    // Preloader and initialization
+    document.addEventListener("DOMContentLoaded", () => {
+      const preloader = document.querySelector('.preloader');
+      const progressBar = document.querySelector('.progress-bar');
+      const progressText = document.querySelector('.progress-text');
+      
+      // Prevent scrolling while loading
+      document.body.style.overflow = 'hidden';
+      
+      let progress = 0;
+      let loaded = false;
 
-    document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
+      window.addEventListener('load', () => {
+        loaded = true;
+      });
+
+      const interval = setInterval(() => {
+        // Random increment, max out at 90% until page actually loads
+        if (progress < 90 || loaded) {
+            progress += Math.floor(Math.random() * 10) + 2;
+        }
+        
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          progressBar.style.width = '100%';
+          progressText.textContent = '100%';
+          
+          setTimeout(() => {
+            preloader.classList.add('hidden');
+            document.body.style.overflow = '';
+            
+            // Initialize Intersection Observer AFTER preloader
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach(el => {
+                if (el.isIntersecting) {
+                  el.target.classList.add('visible');
+                }
+              });
+            }, { threshold: 0.15 });
+
+            document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
+          }, 400); 
+        } else {
+          progressBar.style.width = progress + '%';
+          progressText.textContent = progress + '%';
+        }
+      }, 60);
+    });
 
     // Stagger timeline items
     document.querySelectorAll('.timeline-item').forEach((item, i) => {
@@ -506,6 +559,22 @@
           left: `${posX}px`,
           top: `${posY}px`
         }, { duration: 3000, fill: "forwards", easing: "ease-out" });
+
+        // Background video parallax and spotlight effect
+        const heroBgVideo = document.querySelector(".hero-bg-video");
+        if (heroBgVideo) {
+          // Spotlight effect
+          const rect = heroBgVideo.getBoundingClientRect();
+          const lightX = posX - rect.left;
+          const lightY = posY - rect.top;
+          heroBgVideo.style.setProperty('--x', `${lightX}px`);
+          heroBgVideo.style.setProperty('--y', `${lightY}px`);
+
+          // Parallax effect
+          const x = (posX - window.innerWidth / 2) * 0.03;
+          const y = (posY - window.innerHeight / 2) * 0.03;
+          heroBgVideo.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
+        }
       });
 
       // Hover effect on links
@@ -518,6 +587,21 @@
           cursorOutline.classList.remove('hover-active');
         });
       });
+
+      // Spotlight toggle on Hero
+      const heroSection = document.getElementById("hero");
+      const bgVideo = document.querySelector(".hero-bg-video");
+      if (heroSection && bgVideo) {
+        // Initial state off until mouse enters
+        bgVideo.classList.add("spotlight-off");
+        
+        heroSection.addEventListener("mouseenter", () => {
+          bgVideo.classList.remove("spotlight-off");
+        });
+        heroSection.addEventListener("mouseleave", () => {
+          bgVideo.classList.add("spotlight-off");
+        });
+      }
     }
   </script>
 </body>

@@ -27,6 +27,65 @@ body {
   overflow-x: hidden;
 }
 
+/* ── PRELOADER ── */
+.preloader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+.preloader.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.preloader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.preloader-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  animation: pulse 2s infinite;
+}
+
+.preloader-logo span {
+  color: var(--accent);
+}
+
+.progress-bar-container {
+  width: 200px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.1s ease;
+}
+
+.progress-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
 /* ── NOISE OVERLAY ── */
 body::before {
   content: '';
@@ -106,6 +165,26 @@ nav {
   position: relative;
   overflow: hidden;
   text-align: center;
+}
+
+.hero-bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.1s ease-out;
+  -webkit-mask-image: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 450px);
+  mask-image: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 450px);
+}
+
+.hero-bg-video.spotlight-off {
+  -webkit-mask-image: none;
+  mask-image: none;
+  opacity: 0.12;
 }
 
 .hero-content { 
