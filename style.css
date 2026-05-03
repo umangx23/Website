@@ -177,14 +177,14 @@ nav {
   z-index: 0;
   pointer-events: none;
   transition: opacity 0.5s ease, transform 0.1s ease-out;
-  -webkit-mask-image: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 450px);
-  mask-image: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 450px);
+  -webkit-mask-image: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 800px);
+  mask-image: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 800px);
 }
 
 .hero-bg-video.spotlight-off {
   -webkit-mask-image: none;
   mask-image: none;
-  opacity: 0.12;
+  opacity: 0.18;
 }
 
 .hero-content { 
