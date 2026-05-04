@@ -630,18 +630,62 @@
 
       // Googly Eyes Logic
       const eyes = document.querySelectorAll('.eye');
-      window.addEventListener('mousemove', (e) => {
+
+      function getCaretCoordinates(element) {
+        const isInput = element.nodeName === 'INPUT';
+        const div = document.createElement('div');
+        const style = window.getComputedStyle(element);
+        
+        document.body.appendChild(div);
+        
+        div.style.position = 'absolute';
+        div.style.top = '-9999px';
+        div.style.left = '-9999px';
+        div.style.whiteSpace = isInput ? 'pre' : 'pre-wrap';
+        div.style.wordWrap = isInput ? 'normal' : 'break-word';
+
+        const properties = [
+          'boxSizing', 'width', 'height', 'borderTopWidth', 'borderRightWidth', 
+          'borderBottomWidth', 'borderLeftWidth', 'paddingTop', 'paddingRight', 
+          'paddingBottom', 'paddingLeft', 'fontStyle', 'fontWeight', 'fontSize', 
+          'lineHeight', 'fontFamily', 'textAlign', 'letterSpacing', 'wordSpacing'
+        ];
+        
+        properties.forEach(prop => div.style[prop] = style[prop]);
+        
+        div.textContent = element.value.substring(0, element.selectionStart);
+        if (isInput) div.textContent = div.textContent.replace(/\s/g, '\u00a0');
+        
+        const span = document.createElement('span');
+        span.textContent = element.value.substring(element.selectionStart) || '.';
+        div.appendChild(span);
+        
+        const spanRect = span.getBoundingClientRect();
+        const divRect = div.getBoundingClientRect();
+        const elemRect = element.getBoundingClientRect();
+        
+        const x = elemRect.left + (spanRect.left - divRect.left) - element.scrollLeft;
+        const y = elemRect.top + (spanRect.top - divRect.top) - element.scrollTop;
+        
+        document.body.removeChild(div);
+        
+        return { 
+          x: Math.min(x, elemRect.right - parseInt(style.paddingRight)), 
+          y: Math.min(y, elemRect.bottom - parseInt(style.paddingBottom)) + 10 // center of text height
+        };
+      }
+
+      function updateEyes(targetX, targetY) {
         eyes.forEach(eye => {
           const rect = eye.getBoundingClientRect();
           const eyeX = rect.left + rect.width / 2;
           const eyeY = rect.top + rect.height / 2;
           
-          const angle = Math.atan2(e.clientY - eyeY, e.clientX - eyeX);
-          // Max pupil distance from center = (Eye Radius 20px) - (Pupil Radius 8px) - (Margin ~2px)
+          const angle = Math.atan2(targetY - eyeY, targetX - eyeX);
           const maxDistance = 10;
           
           const distance = Math.min(
-            Math.hypot(e.clientX - eyeX, e.clientY - eyeY) / 15,
+            Math.hypot(targetX - eyeX, targetY - eyeY) / 15,
             maxDistance
           );
           
@@ -653,6 +697,29 @@
             pupil.style.transform = `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))`;
           }
         });
+      }
+
+      let typingTarget = null;
+      const formInputs = document.querySelectorAll('.contact-form input, .contact-form textarea');
+
+      function updateCaretPosition() {
+        if (!typingTarget) return;
+        const coords = getCaretCoordinates(typingTarget);
+        updateEyes(coords.x, coords.y);
+      }
+
+      formInputs.forEach(input => {
+        input.addEventListener('focus', () => { typingTarget = input; updateCaretPosition(); });
+        input.addEventListener('blur', () => { typingTarget = null; });
+        input.addEventListener('input', updateCaretPosition);
+        input.addEventListener('keyup', updateCaretPosition);
+        input.addEventListener('click', updateCaretPosition);
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!typingTarget) {
+          updateEyes(e.clientX, e.clientY);
+        }
       });
     }
   </script>
