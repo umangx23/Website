@@ -38,16 +38,19 @@
   <div class="ambient-glow" data-ambient-glow></div>
 
   <!-- NAV -->
-  <nav>
-    <a class="nav-logo" href="#hero">UC<span>.</span></a>
-    <ul class="nav-links">
-      <li><a href="#about">About</a></li>
-      <li><a href="#experience">Experience</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#blog">Blog</a></li>
-      <li><a href="#contact" class="nav-cta">Say Hello</a></li>
-    </ul>
-  </nav>
+  <header class="glass-header-container">
+    <nav>
+      <ul class="nav-links">
+        <li><a href="#hero" class="nav-btn logo-btn">UC<span style="color: var(--accent);">.</span></a></li>
+        <li class="nav-separator">|</li>
+        <li><a href="#about" class="nav-btn">About</a></li>
+        <li><a href="#experience" class="nav-btn">Experience</a></li>
+        <li><a href="#skills" class="nav-btn">Skills</a></li>
+        <li><a href="#blog" class="nav-btn">Blog</a></li>
+        <li><a href="#contact" class="nav-btn nav-cta">Say Hello</a></li>
+      </ul>
+    </nav>
+  </header>
 
   <!-- HERO -->
   <section id="hero">
@@ -567,40 +570,76 @@
 
     // Check if device supports hover
     if (window.matchMedia("(pointer: fine)").matches) {
+      let mouseX = window.innerWidth / 2;
+      let mouseY = window.innerHeight / 2;
+      let outlineX = mouseX;
+      let outlineY = mouseY;
+      let glowX = mouseX;
+      let glowY = mouseY;
+      let isInitialized = false;
+
+      // Hide initially until mouse moves
+      if (cursorDot) cursorDot.style.opacity = 0;
+      if (cursorOutline) cursorOutline.style.opacity = 0;
+      if (ambientGlow) ambientGlow.style.opacity = 0;
+
       window.addEventListener("mousemove", function (e) {
-        const posX = e.clientX;
-        const posY = e.clientY;
+        mouseX = e.clientX;
+        mouseY = e.clientY;
 
-        cursorDot.style.left = `${posX}px`;
-        cursorDot.style.top = `${posY}px`;
+        if (!isInitialized) {
+          outlineX = mouseX;
+          outlineY = mouseY;
+          glowX = mouseX;
+          glowY = mouseY;
+          isInitialized = true;
+          if (cursorDot) cursorDot.style.opacity = 1;
+          if (cursorOutline) cursorOutline.style.opacity = 1;
+          if (ambientGlow) ambientGlow.style.opacity = 1;
+        }
 
-        cursorOutline.animate({
-          left: `${posX}px`,
-          top: `${posY}px`
-        }, { duration: 500, fill: "forwards" });
-
-        // Ambient Glow follows cursor with delay
-        ambientGlow.animate({
-          left: `${posX}px`,
-          top: `${posY}px`
-        }, { duration: 3000, fill: "forwards", easing: "ease-out" });
-
-        // Background video parallax and spotlight effect
-        const heroBgVideo = document.querySelector(".hero-bg-video");
-        if (heroBgVideo) {
-          // Spotlight effect
-          const rect = heroBgVideo.getBoundingClientRect();
-          const lightX = posX - rect.left;
-          const lightY = posY - rect.top;
-          heroBgVideo.style.setProperty('--x', `${lightX}px`);
-          heroBgVideo.style.setProperty('--y', `${lightY}px`);
-
-          // Parallax effect
-          const x = (posX - window.innerWidth / 2) * 0.03;
-          const y = (posY - window.innerHeight / 2) * 0.03;
-          heroBgVideo.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
+        if (cursorDot) {
+          cursorDot.style.left = `${mouseX}px`;
+          cursorDot.style.top = `${mouseY}px`;
         }
       });
+
+      const heroBgVideo = document.querySelector(".hero-bg-video");
+
+      function animateCursor() {
+        if (isInitialized) {
+          // Outline easing
+          outlineX += (mouseX - outlineX) * 0.2;
+          outlineY += (mouseY - outlineY) * 0.2;
+          if (cursorOutline) {
+            cursorOutline.style.left = `${outlineX}px`;
+            cursorOutline.style.top = `${outlineY}px`;
+          }
+
+          // Glow easing
+          glowX += (mouseX - glowX) * 0.05;
+          glowY += (mouseY - glowY) * 0.05;
+          if (ambientGlow) {
+            ambientGlow.style.left = `${glowX}px`;
+            ambientGlow.style.top = `${glowY}px`;
+          }
+
+          // Background video parallax and spotlight effect
+          if (heroBgVideo) {
+            const rect = heroBgVideo.getBoundingClientRect();
+            const lightX = mouseX - rect.left;
+            const lightY = mouseY - rect.top;
+            heroBgVideo.style.setProperty('--x', `${lightX}px`);
+            heroBgVideo.style.setProperty('--y', `${lightY}px`);
+
+            const x = (mouseX - window.innerWidth / 2) * 0.03;
+            const y = (mouseY - window.innerHeight / 2) * 0.03;
+            heroBgVideo.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
+          }
+        }
+        requestAnimationFrame(animateCursor);
+      }
+      animateCursor();
 
       // Hover effect on links
       const links = document.querySelectorAll('a, .skill-tag, button');
@@ -723,7 +762,5 @@
       });
     }
   </script>
-  <elevenlabs-convai agent-id="agent_6601krdyv7crfejt4gvaa9ptk59b"></elevenlabs-convai><script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
-</body>
-
+  </body>
 </html>
