@@ -33,8 +33,6 @@
     </div>
   </div>
 
-  <div class="cursor-dot" data-cursor-dot></div>
-  <div class="cursor-outline" data-cursor-outline></div>
   <div class="ambient-glow" data-ambient-glow></div>
 
   <!-- NAV -->
@@ -54,9 +52,7 @@
 
   <!-- HERO -->
   <section id="hero">
-    <video autoplay loop muted class="hero-bg-video">
-      <source src="Assets/ECell- Outro.mp4" type="video/mp4" />
-    </video>
+    <div class="hero-bg"></div>
     <div class="hero-content">
       <div class="hero-image-placeholder reveal">
         <img src="Assets/Mountains.jpg" alt="Hero Image" />
@@ -522,6 +518,18 @@
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-links a');
     const scrollIndicator = document.querySelector('.hero-scroll-wrapper');
+    const heroImagePlaceholders = document.querySelectorAll('.hero-image-placeholder');
+
+    // Cache section offsets on load and window resize to prevent layout thrashing inside scroll listener
+    let sectionOffsets = [];
+    function cacheSectionOffsets() {
+      sectionOffsets = Array.from(sections).map(s => ({
+        id: s.getAttribute('id'),
+        offsetTop: s.offsetTop
+      }));
+    }
+    cacheSectionOffsets();
+    window.addEventListener('resize', cacheSectionOffsets);
 
     // Smooth scrolling on click
     navLinks.forEach(anchor => {
@@ -543,8 +551,9 @@
       let current = '';
       const scrollY = window.scrollY;
 
-      sections.forEach(s => {
-        if (scrollY >= s.offsetTop - 200) current = s.getAttribute('id');
+      // Use cached offsets instead of querying offsetTop on every frame
+      sectionOffsets.forEach(s => {
+        if (scrollY >= s.offsetTop - 200) current = s.id;
       });
       navLinks.forEach(link => {
         link.style.color = link.getAttribute('href') === `#${current}` ? 'var(--text)' : '';
@@ -557,209 +566,136 @@
         scrollIndicator.style.transform = `translateY(${scrollY * 0.2}px)`;
       }
 
-      // Optional: Parallax elements reacting to scroll
-      document.querySelectorAll('.hero-image-placeholder').forEach(img => {
+      // Parallax elements reacting to scroll (using cached elements)
+      heroImagePlaceholders.forEach(img => {
         img.style.transform = `translateY(${scrollY * 0.1}px)`;
       });
     });
 
-    // Custom Cursor & Ambient Glow
-    const cursorDot = document.querySelector("[data-cursor-dot]");
-    const cursorOutline = document.querySelector("[data-cursor-outline]");
-    const ambientGlow = document.querySelector("[data-ambient-glow]");
+    // Googly Eyes Logic (Optimized to prevent layout thrashing and only run when visible)
+    const eyes = document.querySelectorAll('.eye');
+    let cachedEyePositions = [];
 
-    // Check if device supports hover
-    if (window.matchMedia("(pointer: fine)").matches) {
-      let mouseX = window.innerWidth / 2;
-      let mouseY = window.innerHeight / 2;
-      let outlineX = mouseX;
-      let outlineY = mouseY;
-      let glowX = mouseX;
-      let glowY = mouseY;
-      let isInitialized = false;
-
-      // Hide initially until mouse moves
-      if (cursorDot) cursorDot.style.opacity = 0;
-      if (cursorOutline) cursorOutline.style.opacity = 0;
-      if (ambientGlow) ambientGlow.style.opacity = 0;
-
-      window.addEventListener("mousemove", function (e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-
-        if (!isInitialized) {
-          outlineX = mouseX;
-          outlineY = mouseY;
-          glowX = mouseX;
-          glowY = mouseY;
-          isInitialized = true;
-          if (cursorDot) cursorDot.style.opacity = 1;
-          if (cursorOutline) cursorOutline.style.opacity = 1;
-          if (ambientGlow) ambientGlow.style.opacity = 1;
-        }
-
-        if (cursorDot) {
-          cursorDot.style.left = `${mouseX}px`;
-          cursorDot.style.top = `${mouseY}px`;
-        }
-      });
-
-      const heroBgVideo = document.querySelector(".hero-bg-video");
-
-      function animateCursor() {
-        if (isInitialized) {
-          // Outline easing
-          outlineX += (mouseX - outlineX) * 0.2;
-          outlineY += (mouseY - outlineY) * 0.2;
-          if (cursorOutline) {
-            cursorOutline.style.left = `${outlineX}px`;
-            cursorOutline.style.top = `${outlineY}px`;
-          }
-
-          // Glow easing
-          glowX += (mouseX - glowX) * 0.05;
-          glowY += (mouseY - glowY) * 0.05;
-          if (ambientGlow) {
-            ambientGlow.style.left = `${glowX}px`;
-            ambientGlow.style.top = `${glowY}px`;
-          }
-
-          // Background video parallax and spotlight effect
-          if (heroBgVideo) {
-            const rect = heroBgVideo.getBoundingClientRect();
-            const lightX = mouseX - rect.left;
-            const lightY = mouseY - rect.top;
-            heroBgVideo.style.setProperty('--x', `${lightX}px`);
-            heroBgVideo.style.setProperty('--y', `${lightY}px`);
-
-            const x = (mouseX - window.innerWidth / 2) * 0.03;
-            const y = (mouseY - window.innerHeight / 2) * 0.03;
-            heroBgVideo.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
-          }
-        }
-        requestAnimationFrame(animateCursor);
-      }
-      animateCursor();
-
-      // Hover effect on links
-      const links = document.querySelectorAll('a, .skill-tag, button');
-      links.forEach(link => {
-        link.addEventListener('mouseenter', () => {
-          cursorOutline.classList.add('hover-active');
-        });
-        link.addEventListener('mouseleave', () => {
-          cursorOutline.classList.remove('hover-active');
-        });
-      });
-
-      // Spotlight toggle on Hero
-      const heroSection = document.getElementById("hero");
-      const bgVideo = document.querySelector(".hero-bg-video");
-      if (heroSection && bgVideo) {
-        // Initial state off until mouse enters
-        bgVideo.classList.add("spotlight-off");
-        
-        heroSection.addEventListener("mouseenter", () => {
-          bgVideo.classList.remove("spotlight-off");
-        });
-        heroSection.addEventListener("mouseleave", () => {
-          bgVideo.classList.add("spotlight-off");
-        });
-      }
-
-      // Googly Eyes Logic
-      const eyes = document.querySelectorAll('.eye');
-
-      function getCaretCoordinates(element) {
-        const isInput = element.nodeName === 'INPUT';
-        const div = document.createElement('div');
-        const style = window.getComputedStyle(element);
-        
-        document.body.appendChild(div);
-        
-        div.style.position = 'absolute';
-        div.style.top = '-9999px';
-        div.style.left = '-9999px';
-        div.style.whiteSpace = isInput ? 'pre' : 'pre-wrap';
-        div.style.wordWrap = isInput ? 'normal' : 'break-word';
-
-        const properties = [
-          'boxSizing', 'width', 'height', 'borderTopWidth', 'borderRightWidth', 
-          'borderBottomWidth', 'borderLeftWidth', 'paddingTop', 'paddingRight', 
-          'paddingBottom', 'paddingLeft', 'fontStyle', 'fontWeight', 'fontSize', 
-          'lineHeight', 'fontFamily', 'textAlign', 'letterSpacing', 'wordSpacing'
-        ];
-        
-        properties.forEach(prop => div.style[prop] = style[prop]);
-        
-        div.textContent = element.value.substring(0, element.selectionStart);
-        if (isInput) div.textContent = div.textContent.replace(/\s/g, '\u00a0');
-        
-        const span = document.createElement('span');
-        span.textContent = element.value.substring(element.selectionStart) || '.';
-        div.appendChild(span);
-        
-        const spanRect = span.getBoundingClientRect();
-        const divRect = div.getBoundingClientRect();
-        const elemRect = element.getBoundingClientRect();
-        
-        const x = elemRect.left + (spanRect.left - divRect.left) - element.scrollLeft;
-        const y = elemRect.top + (spanRect.top - divRect.top) - element.scrollTop;
-        
-        document.body.removeChild(div);
-        
-        return { 
-          x: Math.min(x, elemRect.right - parseInt(style.paddingRight)), 
-          y: Math.min(y, elemRect.bottom - parseInt(style.paddingBottom)) + 10 // center of text height
+    function cacheEyePositions() {
+      cachedEyePositions = Array.from(eyes).map(eye => {
+        const rect = eye.getBoundingClientRect();
+        return {
+          element: eye,
+          pupil: eye.querySelector('.pupil'),
+          pageX: rect.left + rect.width / 2 + window.scrollX,
+          pageY: rect.top + rect.height / 2 + window.scrollY
         };
-      }
-
-      function updateEyes(targetX, targetY) {
-        eyes.forEach(eye => {
-          const rect = eye.getBoundingClientRect();
-          const eyeX = rect.left + rect.width / 2;
-          const eyeY = rect.top + rect.height / 2;
-          
-          const angle = Math.atan2(targetY - eyeY, targetX - eyeX);
-          const maxDistance = 10;
-          
-          const distance = Math.min(
-            Math.hypot(targetX - eyeX, targetY - eyeY) / 15,
-            maxDistance
-          );
-          
-          const pupilX = Math.cos(angle) * distance;
-          const pupilY = Math.sin(angle) * distance;
-          
-          const pupil = eye.querySelector('.pupil');
-          if (pupil) {
-            pupil.style.transform = `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))`;
-          }
-        });
-      }
-
-      let typingTarget = null;
-      const formInputs = document.querySelectorAll('.contact-form input, .contact-form textarea');
-
-      function updateCaretPosition() {
-        if (!typingTarget) return;
-        const coords = getCaretCoordinates(typingTarget);
-        updateEyes(coords.x, coords.y);
-      }
-
-      formInputs.forEach(input => {
-        input.addEventListener('focus', () => { typingTarget = input; updateCaretPosition(); });
-        input.addEventListener('blur', () => { typingTarget = null; });
-        input.addEventListener('input', updateCaretPosition);
-        input.addEventListener('keyup', updateCaretPosition);
-        input.addEventListener('click', updateCaretPosition);
       });
+    }
 
-      window.addEventListener('mousemove', (e) => {
-        if (!typingTarget) {
-          updateEyes(e.clientX, e.clientY);
+    function getCaretCoordinates(element) {
+      const isInput = element.nodeName === 'INPUT';
+      const div = document.createElement('div');
+      const style = window.getComputedStyle(element);
+      
+      document.body.appendChild(div);
+      
+      div.style.position = 'absolute';
+      div.style.top = '-9999px';
+      div.style.left = '-9999px';
+      div.style.whiteSpace = isInput ? 'pre' : 'pre-wrap';
+      div.style.wordWrap = isInput ? 'normal' : 'break-word';
+
+      const properties = [
+        'boxSizing', 'width', 'height', 'borderTopWidth', 'borderRightWidth', 
+        'borderBottomWidth', 'borderLeftWidth', 'paddingTop', 'paddingRight', 
+        'paddingBottom', 'paddingLeft', 'fontStyle', 'fontWeight', 'fontSize', 
+        'lineHeight', 'fontFamily', 'textAlign', 'letterSpacing', 'wordSpacing'
+      ];
+      
+      properties.forEach(prop => div.style[prop] = style[prop]);
+      
+      div.textContent = element.value.substring(0, element.selectionStart);
+      if (isInput) div.textContent = div.textContent.replace(/\s/g, '\u00a0');
+      
+      const span = document.createElement('span');
+      span.textContent = element.value.substring(element.selectionStart) || '.';
+      div.appendChild(span);
+      
+      const spanRect = span.getBoundingClientRect();
+      const divRect = div.getBoundingClientRect();
+      const elemRect = element.getBoundingClientRect();
+      
+      const x = elemRect.left + (spanRect.left - divRect.left) - element.scrollLeft;
+      const y = elemRect.top + (spanRect.top - divRect.top) - element.scrollTop;
+      
+      document.body.removeChild(div);
+      
+      return { 
+        x: Math.min(x, elemRect.right - parseInt(style.paddingRight)), 
+        y: Math.min(y, elemRect.bottom - parseInt(style.paddingBottom)) + 10
+      };
+    }
+
+    function updateEyes(targetX, targetY) {
+      const scrollX = window.scrollX;
+      const scrollY = window.scrollY;
+
+      cachedEyePositions.forEach(eyePos => {
+        const eyeX = eyePos.pageX - scrollX;
+        const eyeY = eyePos.pageY - scrollY;
+        
+        const angle = Math.atan2(targetY - eyeY, targetX - eyeX);
+        const maxDistance = 10;
+        
+        const distance = Math.min(
+          Math.hypot(targetX - eyeX, targetY - eyeY) / 15,
+          maxDistance
+        );
+        
+        const pupilX = Math.cos(angle) * distance;
+        const pupilY = Math.sin(angle) * distance;
+        
+        if (eyePos.pupil) {
+          eyePos.pupil.style.transform = `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))`;
         }
       });
+    }
+
+    let typingTarget = null;
+    const formInputs = document.querySelectorAll('.contact-form input, .contact-form textarea');
+
+    function updateCaretPosition() {
+      if (!typingTarget) return;
+      const coords = getCaretCoordinates(typingTarget);
+      updateEyes(coords.x, coords.y);
+    }
+
+    formInputs.forEach(input => {
+      input.addEventListener('focus', () => { typingTarget = input; updateCaretPosition(); });
+      input.addEventListener('blur', () => { typingTarget = null; });
+      input.addEventListener('input', updateCaretPosition);
+      input.addEventListener('keyup', updateCaretPosition);
+      input.addEventListener('click', updateCaretPosition);
+    });
+
+    function handleMouseMoveEyes(e) {
+      if (!typingTarget) {
+        updateEyes(e.clientX, e.clientY);
+      }
+    }
+
+    // Intersection Observer to enable/disable googly eyes tracking only when contact section is in viewport
+    const contactSection = document.getElementById("contact");
+    if (contactSection) {
+      const contactObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            cacheEyePositions();
+            window.addEventListener('mousemove', handleMouseMoveEyes);
+            window.addEventListener('resize', cacheEyePositions);
+          } else {
+            window.removeEventListener('mousemove', handleMouseMoveEyes);
+            window.removeEventListener('resize', cacheEyePositions);
+          }
+        });
+      }, { threshold: 0.05 });
+      contactObserver.observe(contactSection);
     }
   </script>
   <elevenlabs-convai agent-id="agent_6601krdyv7crfejt4gvaa9ptk59b"></elevenlabs-convai><script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
