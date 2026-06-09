@@ -22,18 +22,7 @@
 </head>
 
 <body>
-  <!-- PRELOADER -->
-  <div class="preloader">
-    <div class="preloader-content">
-      <div class="preloader-logo">UC<span>.</span></div>
-      <div class="progress-bar-container">
-        <div class="progress-bar"></div>
-      </div>
-      <div class="progress-text">0%</div>
-    </div>
-  </div>
 
-  <div class="ambient-glow" data-ambient-glow></div>
 
   <!-- NAV -->
   <header class="glass-header-container">
@@ -59,14 +48,7 @@
       </div>
       <h1 class="hero-name reveal">Umang <em>Chhabra.</em></h1>
     </div>
-    <div class="hero-scroll-wrapper">
-      <div class="hero-scroll">
-        <div class="scroll-mouse">
-          <div class="scroll-wheel"></div>
-        </div>
-        <span class="scroll-text">Scroll</span>
-      </div>
-    </div>
+
   </section>
 
   <!-- ABOUT -->
@@ -323,35 +305,6 @@
     </div>
 
     <div class="blog-grid">
-      <!-- Placeholder Blog Cards -->
-      <a href="#blog" class="blog-card reveal">
-        <div class="blog-thumb">✍️</div>
-        <div class="blog-body">
-          <div class="blog-tag">AI & Business</div>
-          <div class="blog-title">How Gen AI is Reshaping Go-to-Market Strategy in 2025</div>
-          <div class="blog-excerpt">The intersection of artificial intelligence and sales strategy is no longer a future
-            concept — it's happening right now...</div>
-        </div>
-        <div class="blog-footer">
-          <span class="blog-date">Coming Soon</span>
-          <span class="blog-read">Read →</span>
-        </div>
-      </a>
-
-      <a href="#blog" class="blog-card reveal">
-        <div class="blog-thumb">🚀</div>
-        <div class="blog-body">
-          <div class="blog-tag">Entrepreneurship</div>
-          <div class="blog-title">Lessons from Founding Green Sprout Co. at 19</div>
-          <div class="blog-excerpt">Starting a company from scratch teaches you things no classroom ever could. Here's
-            what six months of building taught me...</div>
-        </div>
-        <div class="blog-footer">
-          <span class="blog-date">Coming Soon</span>
-          <span class="blog-read">Read →</span>
-        </div>
-      </a>
-
       <div class="coming-soon-banner reveal">
         <h3>Weekly blogs dropping soon 📝</h3>
         <p>I'm writing about AI, digital marketing, entrepreneurship, and the future of business. Drop your email to get
@@ -368,10 +321,7 @@
       <h2 class="section-title text-center mb-4">Got an idea?<br />Let's talk.</h2>
 
       <form class="contact-form centered-form" name="submit-to-google-sheet">
-        <div class="googly-eyes">
-          <div class="eye"><div class="pupil"></div></div>
-          <div class="eye"><div class="pupil"></div></div>
-        </div>
+
         <div class="form-group">
           <label>Your Name</label>
           <input type="text" name="Name" placeholder="John Doe" required />
@@ -416,59 +366,15 @@
   </footer>
 
   <script>
-    // Preloader and initialization
     document.addEventListener("DOMContentLoaded", () => {
-      const preloader = document.querySelector('.preloader');
-      const progressBar = document.querySelector('.progress-bar');
-      const progressText = document.querySelector('.progress-text');
-      
-      // Prevent scrolling while loading
-      document.body.style.overflow = 'hidden';
-      
-      let progress = 0;
-      let loaded = false;
-
-      window.addEventListener('load', () => {
-        loaded = true;
-      });
-
-      const interval = setInterval(() => {
-        // Random increment, max out at 90% until page actually loads
-        if (progress < 90 || loaded) {
-            progress += Math.floor(Math.random() * 10) + 2;
-        }
-        
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          progressBar.style.width = '100%';
-          progressText.textContent = '100%';
-          
-          setTimeout(() => {
-            preloader.classList.add('hidden');
-            document.body.style.overflow = '';
-            
-            // Initialize Intersection Observer AFTER preloader
-            const observer = new IntersectionObserver((entries) => {
-              entries.forEach(el => {
-                if (el.isIntersecting) {
-                  el.target.classList.add('visible');
-                }
-              });
-            }, { threshold: 0.15 });
-
-            document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
-          }, 400); 
-        } else {
-          progressBar.style.width = progress + '%';
-          progressText.textContent = progress + '%';
-        }
-      }, 60);
-    });
-
-    // Stagger timeline items
-    document.querySelectorAll('.timeline-item').forEach((item, i) => {
-      item.style.transitionDelay = `${i * 0.08}s`;
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(el => {
+          if (el.isIntersecting) {
+            el.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.15 });
+      document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
     });
 
     // Contact form handler
@@ -559,144 +465,7 @@
         link.style.color = link.getAttribute('href') === `#${current}` ? 'var(--text)' : '';
       });
 
-      // Fade out scroll indicator
-      if (scrollIndicator) {
-        const opacity = Math.max(1 - (scrollY / 300), 0);
-        scrollIndicator.style.opacity = opacity;
-        scrollIndicator.style.transform = `translateY(${scrollY * 0.2}px)`;
-      }
-
-      // Parallax elements reacting to scroll (using cached elements)
-      heroImagePlaceholders.forEach(img => {
-        img.style.transform = `translateY(${scrollY * 0.1}px)`;
-      });
     });
-
-    // Googly Eyes Logic (Optimized to prevent layout thrashing and only run when visible)
-    const eyes = document.querySelectorAll('.eye');
-    let cachedEyePositions = [];
-
-    function cacheEyePositions() {
-      cachedEyePositions = Array.from(eyes).map(eye => {
-        const rect = eye.getBoundingClientRect();
-        return {
-          element: eye,
-          pupil: eye.querySelector('.pupil'),
-          pageX: rect.left + rect.width / 2 + window.scrollX,
-          pageY: rect.top + rect.height / 2 + window.scrollY
-        };
-      });
-    }
-
-    function getCaretCoordinates(element) {
-      const isInput = element.nodeName === 'INPUT';
-      const div = document.createElement('div');
-      const style = window.getComputedStyle(element);
-      
-      document.body.appendChild(div);
-      
-      div.style.position = 'absolute';
-      div.style.top = '-9999px';
-      div.style.left = '-9999px';
-      div.style.whiteSpace = isInput ? 'pre' : 'pre-wrap';
-      div.style.wordWrap = isInput ? 'normal' : 'break-word';
-
-      const properties = [
-        'boxSizing', 'width', 'height', 'borderTopWidth', 'borderRightWidth', 
-        'borderBottomWidth', 'borderLeftWidth', 'paddingTop', 'paddingRight', 
-        'paddingBottom', 'paddingLeft', 'fontStyle', 'fontWeight', 'fontSize', 
-        'lineHeight', 'fontFamily', 'textAlign', 'letterSpacing', 'wordSpacing'
-      ];
-      
-      properties.forEach(prop => div.style[prop] = style[prop]);
-      
-      div.textContent = element.value.substring(0, element.selectionStart);
-      if (isInput) div.textContent = div.textContent.replace(/\s/g, '\u00a0');
-      
-      const span = document.createElement('span');
-      span.textContent = element.value.substring(element.selectionStart) || '.';
-      div.appendChild(span);
-      
-      const spanRect = span.getBoundingClientRect();
-      const divRect = div.getBoundingClientRect();
-      const elemRect = element.getBoundingClientRect();
-      
-      const x = elemRect.left + (spanRect.left - divRect.left) - element.scrollLeft;
-      const y = elemRect.top + (spanRect.top - divRect.top) - element.scrollTop;
-      
-      document.body.removeChild(div);
-      
-      return { 
-        x: Math.min(x, elemRect.right - parseInt(style.paddingRight)), 
-        y: Math.min(y, elemRect.bottom - parseInt(style.paddingBottom)) + 10
-      };
-    }
-
-    function updateEyes(targetX, targetY) {
-      const scrollX = window.scrollX;
-      const scrollY = window.scrollY;
-
-      cachedEyePositions.forEach(eyePos => {
-        const eyeX = eyePos.pageX - scrollX;
-        const eyeY = eyePos.pageY - scrollY;
-        
-        const angle = Math.atan2(targetY - eyeY, targetX - eyeX);
-        const maxDistance = 10;
-        
-        const distance = Math.min(
-          Math.hypot(targetX - eyeX, targetY - eyeY) / 15,
-          maxDistance
-        );
-        
-        const pupilX = Math.cos(angle) * distance;
-        const pupilY = Math.sin(angle) * distance;
-        
-        if (eyePos.pupil) {
-          eyePos.pupil.style.transform = `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))`;
-        }
-      });
-    }
-
-    let typingTarget = null;
-    const formInputs = document.querySelectorAll('.contact-form input, .contact-form textarea');
-
-    function updateCaretPosition() {
-      if (!typingTarget) return;
-      const coords = getCaretCoordinates(typingTarget);
-      updateEyes(coords.x, coords.y);
-    }
-
-    formInputs.forEach(input => {
-      input.addEventListener('focus', () => { typingTarget = input; updateCaretPosition(); });
-      input.addEventListener('blur', () => { typingTarget = null; });
-      input.addEventListener('input', updateCaretPosition);
-      input.addEventListener('keyup', updateCaretPosition);
-      input.addEventListener('click', updateCaretPosition);
-    });
-
-    function handleMouseMoveEyes(e) {
-      if (!typingTarget) {
-        updateEyes(e.clientX, e.clientY);
-      }
-    }
-
-    // Intersection Observer to enable/disable googly eyes tracking only when contact section is in viewport
-    const contactSection = document.getElementById("contact");
-    if (contactSection) {
-      const contactObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            cacheEyePositions();
-            window.addEventListener('mousemove', handleMouseMoveEyes);
-            window.addEventListener('resize', cacheEyePositions);
-          } else {
-            window.removeEventListener('mousemove', handleMouseMoveEyes);
-            window.removeEventListener('resize', cacheEyePositions);
-          }
-        });
-      }, { threshold: 0.05 });
-      contactObserver.observe(contactSection);
-    }
   </script>
   <elevenlabs-convai agent-id="agent_6601krdyv7crfejt4gvaa9ptk59b"></elevenlabs-convai><script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
   </body>
