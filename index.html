@@ -6,7 +6,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MCNZ896M93"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'G-MCNZ896M93');
@@ -163,7 +163,8 @@
           <div class="exp-date">Sep – Nov 2025</div>
         </div>
         <div class="exp-company">Kiran Foundation</div>
-        <div class="exp-desc">Delivered structured educational support to underprivileged students (ages 5–17), improving learning engagement and 
+        <div class="exp-desc">Delivered structured educational support to underprivileged students (ages 5–17),
+          improving learning engagement and
           foundational skills through community-based teaching initiatives.</div>
       </div>
 
@@ -369,8 +370,12 @@
 
       <form class="contact-form centered-form" name="submit-to-google-sheet">
         <div class="googly-eyes">
-          <div class="eye"><div class="pupil"></div></div>
-          <div class="eye"><div class="pupil"></div></div>
+          <div class="eye">
+            <div class="pupil"></div>
+          </div>
+          <div class="eye">
+            <div class="pupil"></div>
+          </div>
         </div>
         <div class="form-group">
           <label>Your Name</label>
@@ -400,7 +405,8 @@
       <a href="https://www.snapchat.com/add/umang.x23" target="_blank" rel="noopener noreferrer" aria-label="Snapchat">
         <i class="fab fa-snapchat-ghost"></i>
       </a>
-      <a href="https://www.linkedin.com/in/umang-chhabra" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+      <a href="https://www.linkedin.com/in/umang-chhabra" target="_blank" rel="noopener noreferrer"
+        aria-label="LinkedIn">
         <i class="fab fa-linkedin-in"></i>
       </a>
       <a href="https://github.com/umangx23" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
@@ -421,10 +427,10 @@
       const preloader = document.querySelector('.preloader');
       const progressBar = document.querySelector('.progress-bar');
       const progressText = document.querySelector('.progress-text');
-      
+
       // Prevent scrolling while loading
       document.body.style.overflow = 'hidden';
-      
+
       let progress = 0;
       let loaded = false;
 
@@ -435,19 +441,19 @@
       const interval = setInterval(() => {
         // Random increment, max out at 90% until page actually loads
         if (progress < 90 || loaded) {
-            progress += Math.floor(Math.random() * 10) + 2;
+          progress += Math.floor(Math.random() * 10) + 2;
         }
-        
+
         if (progress >= 100) {
           progress = 100;
           clearInterval(interval);
           progressBar.style.width = '100%';
           progressText.textContent = '100%';
-          
+
           setTimeout(() => {
             preloader.classList.add('hidden');
             document.body.style.overflow = '';
-            
+
             // Initialize Intersection Observer AFTER preloader
             const observer = new IntersectionObserver((entries) => {
               entries.forEach(el => {
@@ -458,7 +464,7 @@
             }, { threshold: 0.15 });
 
             document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
-          }, 400); 
+          }, 400);
         } else {
           progressBar.style.width = progress + '%';
           progressText.textContent = progress + '%';
@@ -474,15 +480,15 @@
     // Contact form handler
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxVDSQr21tyNxWyXyLuog_Owz3DXbwH8UCX9nD1gCztiYm0RNkfRYamzHJbDcYB7D8/exec';
     const form = document.forms['submit-to-google-sheet'];
-    
+
     if (form) {
       form.addEventListener('submit', e => {
         e.preventDefault();
-        
+
         const btn = form.querySelector('.btn-submit');
         const originalText = btn.textContent;
         btn.textContent = 'Sending...';
-        
+
         // Convert FormData to URLSearchParams for Google Apps Script compatibility
         const formData = new FormData(form);
         const data = new URLSearchParams();
@@ -490,12 +496,12 @@
           data.append(pair[0], pair[1]);
         }
 
-        fetch(scriptURL, { method: 'POST', body: data, mode: 'no-cors'})
+        fetch(scriptURL, { method: 'POST', body: data, mode: 'no-cors' })
           .then(response => {
             btn.textContent = 'Message Sent! ✓';
             btn.style.background = '#22c55e';
             form.reset();
-            
+
             setTimeout(() => {
               btn.textContent = originalText;
               btn.style.background = '';
@@ -505,7 +511,7 @@
             console.error('Error!', error.message);
             btn.textContent = 'Error! Try Again.';
             btn.style.background = '#ef4444';
-            
+
             setTimeout(() => {
               btn.textContent = originalText;
               btn.style.background = '';
@@ -592,9 +598,9 @@
       const isInput = element.nodeName === 'INPUT';
       const div = document.createElement('div');
       const style = window.getComputedStyle(element);
-      
+
       document.body.appendChild(div);
-      
+
       div.style.position = 'absolute';
       div.style.top = '-9999px';
       div.style.left = '-9999px';
@@ -602,32 +608,32 @@
       div.style.wordWrap = isInput ? 'normal' : 'break-word';
 
       const properties = [
-        'boxSizing', 'width', 'height', 'borderTopWidth', 'borderRightWidth', 
-        'borderBottomWidth', 'borderLeftWidth', 'paddingTop', 'paddingRight', 
-        'paddingBottom', 'paddingLeft', 'fontStyle', 'fontWeight', 'fontSize', 
+        'boxSizing', 'width', 'height', 'borderTopWidth', 'borderRightWidth',
+        'borderBottomWidth', 'borderLeftWidth', 'paddingTop', 'paddingRight',
+        'paddingBottom', 'paddingLeft', 'fontStyle', 'fontWeight', 'fontSize',
         'lineHeight', 'fontFamily', 'textAlign', 'letterSpacing', 'wordSpacing'
       ];
-      
+
       properties.forEach(prop => div.style[prop] = style[prop]);
-      
+
       div.textContent = element.value.substring(0, element.selectionStart);
       if (isInput) div.textContent = div.textContent.replace(/\s/g, '\u00a0');
-      
+
       const span = document.createElement('span');
       span.textContent = element.value.substring(element.selectionStart) || '.';
       div.appendChild(span);
-      
+
       const spanRect = span.getBoundingClientRect();
       const divRect = div.getBoundingClientRect();
       const elemRect = element.getBoundingClientRect();
-      
+
       const x = elemRect.left + (spanRect.left - divRect.left) - element.scrollLeft;
       const y = elemRect.top + (spanRect.top - divRect.top) - element.scrollTop;
-      
+
       document.body.removeChild(div);
-      
-      return { 
-        x: Math.min(x, elemRect.right - parseInt(style.paddingRight)), 
+
+      return {
+        x: Math.min(x, elemRect.right - parseInt(style.paddingRight)),
         y: Math.min(y, elemRect.bottom - parseInt(style.paddingBottom)) + 10
       };
     }
@@ -639,18 +645,18 @@
       cachedEyePositions.forEach(eyePos => {
         const eyeX = eyePos.pageX - scrollX;
         const eyeY = eyePos.pageY - scrollY;
-        
+
         const angle = Math.atan2(targetY - eyeY, targetX - eyeX);
         const maxDistance = 10;
-        
+
         const distance = Math.min(
           Math.hypot(targetX - eyeX, targetY - eyeY) / 15,
           maxDistance
         );
-        
+
         const pupilX = Math.cos(angle) * distance;
         const pupilY = Math.sin(angle) * distance;
-        
+
         if (eyePos.pupil) {
           eyePos.pupil.style.transform = `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))`;
         }
@@ -698,6 +704,8 @@
       contactObserver.observe(contactSection);
     }
   </script>
-  <elevenlabs-convai agent-id="agent_6601krdyv7crfejt4gvaa9ptk59b"></elevenlabs-convai><script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
-  </body>
+  <elevenlabs-convai agent-id="agent_6601krdyv7crfejt4gvaa9ptk59b"></elevenlabs-convai>
+  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+</body>
+
 </html>
